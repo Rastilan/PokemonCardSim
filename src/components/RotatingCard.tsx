@@ -139,7 +139,7 @@ export default function PokemonRotatingCard() {
           setRotation({ x: 0, y: 0 })
           fetchRandomCard()
         }}
-        className="mt-6 px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white font-semibold rounded-lg shadow"
+        className="mt-6 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-lg shadow"
       >
         Draw Another Card
       </button>
