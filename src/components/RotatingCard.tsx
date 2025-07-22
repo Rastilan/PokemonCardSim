@@ -26,8 +26,11 @@ export default function PokemonRotatingCard() {
   const [loading, setLoading] = useState(true)
   const startPos = useRef({ x: 0, y: 0 })
   const cardRef = useRef<HTMLDivElement>(null)
-
+  const hasFetched = useRef(false)
   useEffect(() => {
+    if(hasFetched.current) return;
+    hasFetched.current = true;
+    
     const fetchRandomCard = async () => {
       try {
         const response = await fetch('https://api.pokemontcg.io/v2/cards?pageSize=1&page=' + Math.floor(Math.random() * 100))
