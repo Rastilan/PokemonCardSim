@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { Card, CardContent } from "./ui/Card"
 import { Loader2 } from "lucide-react"
 import cardback from "../assets/CardBack.jpg";
+import "../index.css";
 
 interface PokemonCard {
   id: string
@@ -124,7 +125,7 @@ export default function PokemonRotatingCard() {
             <img
               src={card.images.large}
               alt={`${card.name} from ${card.set.name}`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover no-highlight"
               draggable="false"
             />
             )
