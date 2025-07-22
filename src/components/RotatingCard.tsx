@@ -105,6 +105,9 @@ export default function PokemonRotatingCard() {
         }}
       >
         <CardContent className="p-0 h-full flex items-center justify-center">
+          {/* Fixing back of card popping into existance when card it rotated */}
+          <img src={cardback} alt="Preload card back" style={{ display: 'none' }} />
+
           {loading ? (
             <div className="flex flex-col items-center gap-2 text-purple-300">
               <Loader2 className="h-8 w-8 animate-spin" />
