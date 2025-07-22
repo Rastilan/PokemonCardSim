@@ -6,6 +6,12 @@ import { Loader2 } from "lucide-react"
 import cardback from "../assets/CardBack.jpg"
 import "../index.css"
 
+interface Attack {
+  name: string
+  damage?: string
+  text?: string
+}
+
 interface PokemonCard {
   id: string
   name: string
@@ -13,7 +19,10 @@ interface PokemonCard {
     small: string
     large: string
   }
+  hp?: string
+  types?: string[]
   rarity?: string
+  attacks?: Attack[]
   set: {
     name: string
   }
@@ -28,7 +37,6 @@ export default function PokemonRotatingCard() {
   const cardRef = useRef<HTMLDivElement>(null)
   const hasFetched = useRef(false)
 
-  // ✅ Fetch card function
   const fetchRandomCard = async () => {
     try {
       setLoading(true)
@@ -39,6 +47,8 @@ export default function PokemonRotatingCard() {
       const data = await response.json()
       if (data.data && data.data.length > 0) {
         setCard(data.data[0])
+        console.log("Fetched Card:", data.data[0])
+
       }
     } catch (error) {
       console.error("Error fetching Pokemon card:", error)
@@ -90,13 +100,13 @@ export default function PokemonRotatingCard() {
     }
   }, [rotating])
 
-  const isFlipped = Math.abs(rotation.x) > 90 || Math.abs(rotation.y) > 90
+  const isFlipped = rotation.y > 90 || rotation.y < -90
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-500 to-purple-900 p-4">
       <Card
         ref={cardRef}
-        className="w-[245px] h-[335px] cursor-grab active:cursor-grabbing transition-transform duration-300 ease-out overflow-hidden"
+        className="relative w-[245px] h-[335px] cursor-grab active:cursor-grabbing transition-transform duration-300 ease-out overflow-hidden"
         onMouseDown={handleStart}
         onTouchStart={handleStart}
         style={{
@@ -104,7 +114,7 @@ export default function PokemonRotatingCard() {
           transition: rotating ? 'none' : 'transform 0.5s ease-out',
         }}
       >
-        <CardContent className="p-0 h-full flex items-center justify-center">
+        <CardContent className="p-0 h-full flex items-center justify-center relative">
           <img src={cardback} alt="Preload card back" style={{ display: 'none' }} />
           {loading ? (
             <div className="flex flex-col items-center gap-2 text-purple-300">
@@ -112,28 +122,33 @@ export default function PokemonRotatingCard() {
               <p className="text-sm">Loading card...</p>
             </div>
           ) : card ? (
-            isFlipped ? (
+            <>
               <img
                 src={cardback}
                 alt="Card back"
-                className="w-full h-full object-cover"
-                draggable="false"
+                className={`w-full h-full object-cover no-highlight absolute inset-0 transition-opacity duration-300 ${
+                  isFlipped ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                draggable={false}
+                style={{ backfaceVisibility: 'hidden' }}
               />
-            ) : (
               <img
                 src={card.images.large}
                 alt={`${card.name} from ${card.set.name}`}
-                className="w-full h-full object-cover no-highlight"
-                draggable="false"
+                className={`w-full h-full object-cover no-highlight absolute inset-0 transition-opacity duration-300 ${
+                  isFlipped ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                }`}
+                draggable={false}
+                style={{ backfaceVisibility: 'hidden' }}
               />
-            )
+            </>
           ) : (
             <p className="text-center p-4 text-purple-300">Failed to load Pokemon card</p>
           )}
         </CardContent>
       </Card>
 
-      {/* ✅ Draw Another Card Button */}
+      {/* Draw Button */}
       <button
         onClick={() => {
           setRotation({ x: 0, y: 0 })
@@ -143,6 +158,50 @@ export default function PokemonRotatingCard() {
       >
         Draw Another Card
       </button>
+
+      {/* Card Details */}
+      {card && !loading && (
+        
+        <div className="mt-6 w-[245px] bg-purple-800 bg-opacity-70 rounded-lg p-4 text-white shadow-lg">
+          <h2 className="text-xl font-bold mb-2">{card.name}</h2>
+          <p className="mb-1">
+            <span className="font-semibold">Series:</span> {card.set.name}
+          </p>
+          {card.rarity && (
+            <p className="mb-2">
+              <span className="font-semibold">Rarity:</span> {card.rarity}
+            </p>
+          )}
+          {card.hp && (
+            <p className="mb-2">
+              <span className="font-semibold">HP:</span> {card.hp}
+            </p>
+          )}
+          {card.types && card.types.length > 0 && (
+            <p className="mb-2">
+              <span className="font-semibold">Type:</span> {card.types.join(", ")}
+            </p>
+          )}
+          {card.attacks && card.attacks.length > 0 && (
+            <div>
+              <span className="font-semibold">Attacks:</span>
+              <ul className="list-disc list-inside mt-1 max-h-28 overflow-auto">
+                {card.attacks.map((attack, index) => (
+                  <li key={index} className="mb-1">
+                    <p>
+                      <span className="font-semibold">{attack.name}</span>{" "}
+                      {attack.damage && <span>({attack.damage} dmg)</span>}
+                    </p>
+                    {attack.text && (
+                      <p className="text-sm italic text-purple-300">{attack.text}</p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
